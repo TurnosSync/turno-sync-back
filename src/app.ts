@@ -5,9 +5,8 @@ import snakeToCamelMiddleware from './interfaces/middlewares/snakeToCamelMiddlew
 
 const app = express();
 
-// Middleware para parsear JSON
 app.use(express.json());
-app.use(snakeToCamelMiddleware); // Middleware para transformar snake_case a camelCase
+app.use(snakeToCamelMiddleware);
 
 app.use('/api/professionals', professionalRoutes);
 

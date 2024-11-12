@@ -2,13 +2,13 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Cargar las variables de entorno desde el archivo .env
+// load environment variables from .env file
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 class Config {
     private static instance: Config;
 
-    // Variables de configuración de la aplicación y la base de datos
+    // environment variables
     public readonly port: string;
     public readonly dbHost: string;
     public readonly dbUser: string;
@@ -16,7 +16,7 @@ class Config {
     public readonly dbName: string;
     public readonly dbPort: number;
 
-    // Constructor privado para Singleton
+    // Singleton constructor
     private constructor() {
         this.port = process.env.PORT || '3000';
         this.dbHost = process.env.DB_HOST || 'localhost';
@@ -26,7 +26,7 @@ class Config {
         this.dbPort = parseInt(process.env.DB_PORT || '5432', 10);
     }
 
-    // Método estático para obtener una única instancia de Config
+    // static method to create instance of Singleton class
     public static getInstance(): Config {
         if (!Config.instance) {
             Config.instance = new Config();
