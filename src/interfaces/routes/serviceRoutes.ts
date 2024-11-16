@@ -1,4 +1,4 @@
-// routes/professionalRoutes.ts
+// routes/serviceRoutes.ts
 import { Request, Response, RequestHandler, Router } from "express";
 import {
   createServiceHandler,
