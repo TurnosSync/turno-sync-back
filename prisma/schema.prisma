@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Store {
+  id          Int       @id @default(autoincrement())
+  name        String
+  address     String?
+  phoneNumber String?
+
+  services       Service[]
+  professionals  Professional[]
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  duration    Int      // Representa la duración en minutos
+  price       Float
+  storeId     Int
+
+  store       Store    @relation(fields: [storeId], references: [id])
+  appointments Appointment[]
+}
+
+model Professional {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String?   @unique
+  phoneNumber String?
+  password    String
+  storeId     Int
+
+  store          Store             @relation(fields: [storeId], references: [id])
+  appointments   Appointment[]
+  professionalDays ProfessionalDays[]
+}
+
+model ProfessionalDays {
+  id            Int       @id @default(autoincrement())
+  professionalId Int
+  dayId         Int
+  startTime     String     // Formato HH:mm:ss
+  endTime       String     // Formato HH:mm:ss
+
+  professional  Professional @relation(fields: [professionalId], references: [id])
+  day           Days         @relation(fields: [dayId], references: [id])
+  dayTimeOuts   DayTimeOut[]
+}
+
+model DayTimeOut {
+  id               Int       @id @default(autoincrement())
+  professionalDayId Int
+  startTime        String    // Formato HH:mm:ss
+  endTime          String    // Formato HH:mm:ss
+  reason           String?
+  activeBeforeTime DateTime?
+
+  professionalDay  ProfessionalDays @relation(fields: [professionalDayId], references: [id])
+}
+
+model Days {
+  id     Int       @id @default(autoincrement())
+  value  String    @unique
+
+  professionalDays ProfessionalDays[]
+}
+
+model Client {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String?   @unique
+  phoneNumber String?
+
+  appointments Appointment[]
+}
+
+model Appointment {
+  id             Int       @id @default(autoincrement())
+  clientId       Int
+  professionalId Int
+  serviceId      Int
+  appointmentDate DateTime
+  status         String
+
+  client         Client       @relation(fields: [clientId], references: [id])
+  professional   Professional @relation(fields: [professionalId], references: [id])
+  service        Service      @relation(fields: [serviceId], references: [id])
+}
