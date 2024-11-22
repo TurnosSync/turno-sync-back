@@ -19,6 +19,7 @@ model Store {
   name        String
   address     String?
   phoneNumber String?
+  suffixUrl String
 
   services       Service[]
   professionals  Professional[]
