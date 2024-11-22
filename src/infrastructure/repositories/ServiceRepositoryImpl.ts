@@ -1,89 +1,61 @@
 // src/infrastructure/repositories/ServiceRepositoryImpl.ts
 import { ServiceRepository } from "../../domain/repositories/ServiceRepository";
 import { Service } from "../../domain/entities/Service";
-import pool from "../database/database";
+import { prisma } from "../database/database";
+import { Service as ServiceModel } from "@prisma/client";
 
 export class ServiceRepositoryImpl implements ServiceRepository {
   async getAll(): Promise<Service[]> {
-    const result = await pool.query("SELECT * FROM public.\"Service\"");
-    return result.rows.map(
-      (row) =>
-        new Service(
-          row.id,
-          row.name,
-          row.description,
-          row.duration,
-          row.price,
-          row.storeId
-        )
-    );
+    const service = await prisma.service.findMany();
+    return service.map(toEntity);
   }
 
   async findById(id: number): Promise<Service | null> {
-    const result = await pool.query("SELECT * FROM public.\"Service\" WHERE id = $1", [
-      id,
-    ]);
-    if (result.rows.length) {
-      const row = result.rows[0];
-      return new Service(
-        row.id,
-        row.name,
-        row.description,
-        row.duration,
-        row.price,
-        row.storeId
-      );
+    const service = await prisma.service.findFirst({ where: { id } });
+    if (!service) {
+      return null;
     }
-    return null;
+    return toEntity(service);
   }
 
   async create(service: Service): Promise<Service> {
-    const result = await pool.query(
-      "INSERT INTO public.\"Service\" (name, description, duration, price, \"storeId\") VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [
-        service.name,
-        service.description,
-        service.duration,
-        service.price,
-        service.storeId,
-      ]
-    );
-    const row = result.rows[0];
-    return new Service(
-      row.id,
-      row.name,
-      row.description,
-      row.duration,
-      row.price,
-      row.store_id
-    );
+    const model = toModel(service);
+    const newService = await prisma.service.create({ data: model });
+    return toEntity(newService);
   }
 
   async update(service: Service): Promise<Service> {
-    const result = await pool.query(
-      "UPDATE public.\"Service\" SET name = $1, description = $2, duration = $3, price = $4, \"storeId\" = $5 WHERE id = $6 RETURNING *",
-      [
-        service.name,
-        service.description,
-        service.duration,
-        service.price,
-        service.storeId,
-        service.id,
-      ]
-    );
-    const row = result.rows[0];
-    return new Service(
-      row.id,
-      row.name,
-      row.description,
-      row.duration,
-      row.price,
-      row.store_id
-    );
+    const model = toModel(service);
+    const newService = await prisma.service.update({
+      where: { id: service.id },
+      data: model,
+    });
+    return toEntity(newService);
   }
 
   async delete(id: number): Promise<boolean> {
-    const result = await pool.query("DELETE FROM public.\"Service\" WHERE id = $1", [id]);
-    return result.rowCount !== null && result.rowCount > 0;
+    const result = await prisma.service.delete({ where: { id } });
+    return !result;
   }
+}
+
+function toEntity(service: ServiceModel) {
+  return new Service(
+    service.id,
+    service.name,
+    service.description,
+    service.duration,
+    service.price,
+    service.storeId
+  );
+}
+
+function toModel(service: Service) {
+  return {
+    name: service.name,
+    description: service.description,
+    duration: service.duration,
+    price: service.price,
+    storeId: service.storeId,
+  };
 }
