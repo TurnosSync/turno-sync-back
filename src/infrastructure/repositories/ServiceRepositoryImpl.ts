@@ -5,7 +5,7 @@ import pool from "../database/database";
 
 export class ServiceRepositoryImpl implements ServiceRepository {
   async getAll(): Promise<Service[]> {
-    const result = await pool.query("SELECT * FROM Service");
+    const result = await pool.query("SELECT * FROM public.\"Service\"");
     return result.rows.map(
       (row) =>
         new Service(
@@ -20,7 +20,7 @@ export class ServiceRepositoryImpl implements ServiceRepository {
   }
 
   async findById(id: number): Promise<Service | null> {
-    const result = await pool.query("SELECT * FROM Service WHERE id = $1", [
+    const result = await pool.query("SELECT * FROM public.\"Service\" WHERE id = $1", [
       id,
     ]);
     if (result.rows.length) {
@@ -39,7 +39,7 @@ export class ServiceRepositoryImpl implements ServiceRepository {
 
   async create(service: Service): Promise<Service> {
     const result = await pool.query(
-      "INSERT INTO Service (name, description, duration, price, store_id) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      "INSERT INTO public.\"Service\" (name, description, duration, price, \"storeId\") VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [
         service.name,
         service.description,
@@ -61,7 +61,7 @@ export class ServiceRepositoryImpl implements ServiceRepository {
 
   async update(service: Service): Promise<Service> {
     const result = await pool.query(
-      "UPDATE Service SET name = $1, description = $2, duration = $3, price = $4, store_id = $5 WHERE id = $6 RETURNING *",
+      "UPDATE public.\"Service\" SET name = $1, description = $2, duration = $3, price = $4, \"storeId\" = $5 WHERE id = $6 RETURNING *",
       [
         service.name,
         service.description,
@@ -83,7 +83,7 @@ export class ServiceRepositoryImpl implements ServiceRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const result = await pool.query("DELETE FROM Service WHERE id = $1", [id]);
+    const result = await pool.query("DELETE FROM public.\"Service\" WHERE id = $1", [id]);
     return result.rowCount !== null && result.rowCount > 0;
   }
 }
