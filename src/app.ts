@@ -3,12 +3,13 @@ import cors from "cors";
 import professionalRoutes from "./interfaces/routes/professionalRoutes";
 import serviceRoutes from "./interfaces/routes/serviceRoutes";
 import snakeToCamelMiddleware from "./interfaces/middlewares/snakeToCamelMiddleware";
+import config from "./infrastructure/config/config";
 
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow FrontEnd Requests
+    origin: config.host, // Allow FrontEnd Requests
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
